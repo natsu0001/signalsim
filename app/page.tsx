@@ -7,12 +7,14 @@ import SignalPanel from "./components/SignalPanel";
 import TradePanel from "./components/TradePanel";
 import Portfolio from "./components/Portfolio";
 import PriceTicker from "./components/PriceTicker";
+import TradeHistory from "./components/TradeHistory";
+import StatsPanel from "./components/StatsPanel";
 
 export default function Home() {
   const [symbol, setSymbol] = useState("BTCUSDT");
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-black text-white overflow-hidden">
 
       {/* Sidebar */}
       <Sidebar setSymbol={setSymbol} />
@@ -30,6 +32,8 @@ export default function Home() {
           <SignalPanel symbol={symbol} />
           <TradePanel symbol={symbol} />
           <Portfolio />
+          <StatsPanel />
+          <TradeHistory />
         </div>
 
       </div>

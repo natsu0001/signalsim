@@ -24,9 +24,11 @@ model Trade {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   symbol    String
-  type      String   // BUY or SELL
+  type      String
   price     Float
   quantity  Float
   status    String   @default("OPEN")
+  exitPrice Float?   // NEW
   createdAt DateTime @default(now())
+  closedAt  DateTime?
 }

@@ -74,6 +74,8 @@ export async function POST(req: Request) {
         where: { id: openTrade.id },
         data: {
           status: "CLOSED",
+          exitPrice: price,
+          closedAt: new Date(),
         },
       });
 
