@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import DashboardCard from "./cards/DashboardCard";
 
 export default function Chart({ symbol = "BTCUSDT" }) {
   const container = useRef<HTMLDivElement>(null);
@@ -29,8 +30,8 @@ export default function Chart({ symbol = "BTCUSDT" }) {
   }, [symbol]);
 
   return (
-    <div className="bg-zinc-900 p-2 rounded-xl h-[400px]">
+    <DashboardCard>
       <div ref={container} className="h-full w-full" />
-    </div>
+    </DashboardCard>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import DashboardCard from "../components/cards/DashboardCard";
 
 import { useEffect, useState } from "react";
 
@@ -22,7 +23,8 @@ export default function StatsPanel() {
   if (!stats) return null;
 
   return (
-    <div className="bg-zinc-900 p-4 rounded-xl shadow-lg">
+    <DashboardCard>
+    
       <h3 className="text-lg font-semibold mb-3">
         Performance
       </h3>
@@ -52,6 +54,7 @@ export default function StatsPanel() {
           Total P&L: {stats.totalPnL.toFixed(2)}
         </p>
       </div>
-    </div>
+    
+    </DashboardCard>
   );
 }

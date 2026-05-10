@@ -1,42 +1,52 @@
-"use client";
+import Sidebar from "./components/layout/Sidebar";
+import Navbar from "./components/layout/Navbar";
 
-import { useState } from "react";
-import Sidebar from "./components/Sidebar";
 import Chart from "./components/Chart";
+import PriceTicker from "./components/PriceTicker";
+
 import SignalPanel from "./components/SignalPanel";
 import TradePanel from "./components/TradePanel";
 import Portfolio from "./components/Portfolio";
-import PriceTicker from "./components/PriceTicker";
-import TradeHistory from "./components/TradeHistory";
 import StatsPanel from "./components/StatsPanel";
+import TradeHistory from "./components/TradeHistory";
 
 export default function Home() {
-  const [symbol, setSymbol] = useState("BTCUSDT");
+  const symbol = "BTCUSDT";
 
   return (
-    <div className="flex h-screen bg-black text-white overflow-hidden">
-
+    <div className="flex bg-black min-h-screen text-white">
+      
       {/* Sidebar */}
-      <Sidebar setSymbol={setSymbol} />
+      <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 p-4 space-y-4">
+      <main className="flex-1 flex flex-col overflow-hidden">
 
-        <PriceTicker symbol={symbol} />
+        {/* Navbar */}
+        <Navbar />
 
-        {/* Chart */}
-        <Chart symbol={symbol} />
+        {/* Dashboard Content */}
+        <div className="p-6 space-y-6 overflow-y-auto">
 
-        {/* Panels */}
-        <div className="grid grid-cols-3 gap-4">
-          <SignalPanel symbol={symbol} />
-          <TradePanel symbol={symbol} />
-          <Portfolio />
-          <StatsPanel />
+          {/* Price Ticker */}
+          <PriceTicker symbol={symbol} />
+
+          {/* Chart */}
+          <Chart symbol={symbol} />
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <Portfolio />
+            <StatsPanel />
+            <SignalPanel symbol={symbol} />
+            <TradePanel symbol={symbol} />
+          </div>
+
+          {/* Trade History */}
           <TradeHistory />
-        </div>
 
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

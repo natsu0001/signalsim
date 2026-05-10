@@ -1,5 +1,5 @@
 "use client";
-
+import DashboardCard from "../components/cards/DashboardCard";
 import { useEffect, useState } from "react";
 
 export default function TradeHistory() {
@@ -24,7 +24,8 @@ export default function TradeHistory() {
   };
 
   return (
-    <div className="bg-zinc-900 p-4 rounded-xl shadow-lg">
+    <DashboardCard>
+    
       <h3 className="text-lg font-semibold mb-3">Trade History</h3>
 
       <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -32,6 +33,7 @@ export default function TradeHistory() {
           const pnl = calculatePnL(trade);
 
           return (
+            
             <div
               key={trade.id}
               className="border border-zinc-700 p-2 rounded"
@@ -55,6 +57,8 @@ export default function TradeHistory() {
           );
         })}
       </div>
-    </div>
+    
+    </DashboardCard>
+   
   );
 }

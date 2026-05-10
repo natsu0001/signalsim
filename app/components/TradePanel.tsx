@@ -1,5 +1,5 @@
 "use client";
-
+import DashboardCard from "../components/cards/DashboardCard";
 import { useState } from "react";
 
 export default function TradePanel({
@@ -43,7 +43,8 @@ export default function TradePanel({
   };
 
   return (
-    <div className="bg-zinc-900 p-4 rounded-xl shadow-lg">
+    <DashboardCard>
+    
       <h3 className="text-lg font-semibold mb-4">Trade Panel</h3>
 
       <div className="flex gap-2 mb-4">
@@ -72,6 +73,7 @@ export default function TradePanel({
         />
         Auto Trade
       </label>
-    </div>
+    
+    </DashboardCard>  
   );
 }
