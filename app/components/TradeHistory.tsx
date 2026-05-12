@@ -23,42 +23,132 @@ export default function TradeHistory() {
     return (trade.exitPrice - trade.price) * trade.quantity;
   };
 
-  return (
-    <DashboardCard>
-    
-      <h3 className="text-lg font-semibold mb-3">Trade History</h3>
+return (
+  <DashboardCard>
 
-      <div className="space-y-2 max-h-60 overflow-y-auto">
-        {trades.map((trade) => {
-          const pnl = calculatePnL(trade);
+    {/* Header */}
+    <div className="flex items-center justify-between mb-5">
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight">
+          Trade History
+        </h2>
 
-          return (
-            
-            <div
-              key={trade.id}
-              className="border border-zinc-700 p-2 rounded"
-            >
-              <p className="text-sm">{trade.symbol}</p>
+        <p className="text-zinc-400 text-sm">
+          Recent executed trades
+        </p>
+      </div>
 
-              <p className="text-xs text-gray-400">
-                Entry: {trade.price} | Exit: {trade.exitPrice || "-"}
+      <div className="px-3 py-1 rounded-lg bg-zinc-800 text-sm text-zinc-300">
+        {trades.length} Trades
+      </div>
+    </div>
+
+    {/* Trades */}
+    <div className="space-y-3 max-h-[550px] overflow-y-auto pr-1">
+
+      {trades.length === 0 && (
+        <div className="text-center py-10 text-zinc-500">
+          No trades yet
+        </div>
+      )}
+
+      {trades.map((trade) => {
+        const pnl = calculatePnL(trade);
+
+        return (
+          <div
+            key={trade.id}
+            className="
+              border border-zinc-800
+              bg-zinc-900/50
+              hover:bg-zinc-800/60
+              transition
+              rounded-xl
+              p-4
+            "
+          >
+
+            {/* Top Row */}
+            <div className="flex items-center justify-between">
+
+              <div>
+                <h3 className="font-medium text-white">
+                  {trade.symbol}
+                </h3>
+
+                <p className="text-xs text-zinc-500 mt-1">
+                  {trade.type}
+                </p>
+              </div>
+
+              <div
+                className={`
+                  px-2 py-1 rounded-lg text-xs font-medium
+                  ${
+                    trade.status === "OPEN"
+                      ? "bg-yellow-500/10 text-yellow-400"
+                      : "bg-green-500/10 text-green-400"
+                  }
+                `}
+              >
+                {trade.status}
+              </div>
+            </div>
+
+            {/* Middle */}
+            <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
+
+              <div>
+                <p className="text-zinc-500 text-xs mb-1">
+                  Entry
+                </p>
+
+                <p>{trade.price}</p>
+              </div>
+
+              <div>
+                <p className="text-zinc-500 text-xs mb-1">
+                  Exit
+                </p>
+
+                <p>{trade.exitPrice || "-"}</p>
+              </div>
+
+              <div>
+                <p className="text-zinc-500 text-xs mb-1">
+                  Quantity
+                </p>
+
+                <p>{trade.quantity}</p>
+              </div>
+            </div>
+
+            {/* Bottom */}
+            <div className="mt-4 flex items-center justify-between">
+
+              <p className="text-xs text-zinc-500">
+                {new Date(trade.createdAt).toLocaleString()}
               </p>
 
               <p
-                className={`text-sm ${
-                  pnl > 0 ? "text-green-400" : "text-red-400"
-                }`}
+                className={`
+                  font-semibold
+                  ${
+                    pnl >= 0
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }
+                `}
               >
-                P&L: {pnl.toFixed(2)}
+                {trade.status === "OPEN"
+                  ? "--"
+                  : `${pnl.toFixed(2)}`}
               </p>
-
-              <p className="text-xs text-gray-500">{trade.status}</p>
             </div>
-          );
-        })}
-      </div>
-    
-    </DashboardCard>
-   
-  );
+          </div>
+        );
+      })}
+    </div>
+  </DashboardCard>
+);
 }

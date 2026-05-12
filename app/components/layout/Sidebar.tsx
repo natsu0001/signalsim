@@ -12,28 +12,42 @@ const items = [
   {
     name: "Dashboard",
     icon: LayoutDashboard,
+    active: true,
   },
   {
     name: "Portfolio",
     icon: Wallet,
+    active: false,
   },
   {
     name: "Signals",
     icon: LineChart,
+    active: false,
   },
   {
     name: "History",
     icon: History,
+    active: false,
   },
   {
     name: "Settings",
     icon: Settings,
+    active: false,
   },
 ];
 
 export default function Sidebar() {
   return (
-    <aside className="w-64 h-screen bg-zinc-950 border-r border-zinc-800 p-4 hidden md:flex flex-col">
+    <aside className="
+    fixed left-0 top-0
+    w-64 h-screen
+    bg-zinc-950/70
+    backdrop-blur-xl
+    border-r border-zinc-800
+    p-4
+    hidden md:flex flex-col
+    z-50
+  ">
       <div className="mb-10">
         <h1 className="text-2xl font-bold text-white">
           SignalSim
@@ -51,7 +65,14 @@ export default function Sidebar() {
           return (
             <button
               key={item.name}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-400 hover:bg-zinc-900 hover:text-white transition"
+              className={`
+  w-full flex items-center gap-3 px-4 py-3 rounded-xl transition
+  ${
+    item.active
+      ? "bg-green-500/10 text-green-400 border border-green-500/20"
+      : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
+  }
+`}
             >
               <Icon size={18} />
               <span>{item.name}</span>

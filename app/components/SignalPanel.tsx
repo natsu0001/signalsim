@@ -30,7 +30,7 @@ export default function SignalPanel({ symbol }: { symbol: string }) {
       <p className="text-gray-400">RSI: {rsi?.toFixed(2)}</p>
 
       <p
-        className={`text-xl font-bold mt-2 ${
+        className={`text-4xl font-bold mt-2 ${
           signal === "BUY"
             ? "text-green-400"
             : signal === "SELL"
