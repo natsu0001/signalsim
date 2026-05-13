@@ -1,5 +1,5 @@
 "use client";
-
+import { useMarketStore } from "../store/useMarketStore";
 import DashboardCard from "./cards/DashboardCard";
 
 const watchlist = [
@@ -25,13 +25,8 @@ const watchlist = [
   },
 ];
 
-export default function Watchlist({
-  symbol,
-  setSymbol,
-}: {
-  symbol: string;
-  setSymbol: React.Dispatch<React.SetStateAction<string>>;
-}) {
+export default function Watchlist() {
+  const { symbol, setSymbol } = useMarketStore();
   return (
     <DashboardCard>
 

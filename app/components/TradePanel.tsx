@@ -1,14 +1,13 @@
 "use client";
 
 import DashboardCard from "../components/cards/DashboardCard";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useMarketStore } from "../store/useMarketStore";
 
-export default function TradePanel({
-  symbol,
-}: {
-  symbol: string;
-}) {
+export default function TradePanel() {
+  const { symbol } = useMarketStore();
+
   const [loading, setLoading] = useState(false);
 
   const [autoTrade, setAutoTrade] =
@@ -87,7 +86,7 @@ export default function TradePanel({
 
       // SUCCESS
       toast.success(
-        `${type} order executed`
+        `${type} order executed successfully`
       );
 
     } catch (err) {
@@ -100,54 +99,102 @@ export default function TradePanel({
     }
   };
 
-  // ================= TOTAL COST =================
+  // ================= CALCULATIONS =================
 
-  const totalCost =
-    price && quantity
-      ? (price * quantity).toFixed(2)
-      : "0";
+  const totalCost = useMemo(() => {
+    if (!price) return 0;
+
+    return price * quantity;
+  }, [price, quantity]);
+
+  const estimatedFee = useMemo(() => {
+    return totalCost * 0.001;
+  }, [totalCost]);
+
+  const finalCost = useMemo(() => {
+    return totalCost + estimatedFee;
+  }, [totalCost, estimatedFee]);
 
   return (
-    <DashboardCard>
+    <DashboardCard className="sticky top-6">
 
       {/* Header */}
-      <div className="mb-5">
-        <h3 className="text-xl font-semibold">
-          Trade Panel
-        </h3>
+      <div className="mb-6">
 
-        <p className="text-zinc-400 text-sm mt-1">
-          Execute paper trades instantly
-        </p>
-      </div>
+        <div className="flex items-center justify-between">
 
-      {/* Symbol */}
-      <div className="mb-4">
-        <p className="text-zinc-500 text-sm mb-2">
-          Symbol
-        </p>
+          <div>
+            <h3 className="text-2xl font-semibold tracking-tight">
+              Trade Panel
+            </h3>
 
-        <div className="
-          bg-zinc-900
-          border border-zinc-800
-          rounded-xl
-          px-4 py-3
-          flex items-center justify-between
-        ">
-          <span>{symbol}</span>
+            <p className="text-zinc-400 text-sm mt-1">
+              Execute paper trades instantly
+            </p>
+          </div>
 
-          <span className="
-            text-xs
-            text-green-400
+          {/* LIVE */}
+          <div className="
             flex items-center gap-2
+            px-3 py-1.5
+            rounded-full
+            bg-green-500/10
+            border border-green-500/20
           ">
             <div className="
               w-2 h-2 rounded-full
               bg-green-400 animate-pulse
             " />
 
-            LIVE
-          </span>
+            <span className="
+              text-xs font-medium text-green-400
+            ">
+              LIVE
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Symbol Card */}
+      <div className="
+        mb-5
+        rounded-2xl
+        border border-zinc-800
+        bg-gradient-to-br
+        from-zinc-900
+        to-zinc-950
+        p-4
+      ">
+
+        <div className="flex items-center justify-between">
+
+          <div>
+            <p className="text-zinc-500 text-xs uppercase tracking-widest">
+              Trading Pair
+            </p>
+
+            <h2 className="text-2xl font-bold mt-1">
+              {symbol}
+            </h2>
+          </div>
+
+          <div className="text-right">
+            <p className="text-zinc-500 text-xs">
+              Market Price
+            </p>
+
+            <h3 className="
+              text-xl font-bold
+              text-green-400 mt-1
+            ">
+              ₹{" "}
+              {price
+                ? price.toLocaleString()
+                : "--"}
+            </h3>
+          </div>
+
         </div>
       </div>
 
@@ -155,7 +202,8 @@ export default function TradePanel({
       <div className="mb-5">
 
         <div className="
-          flex items-center justify-between mb-2
+          flex items-center justify-between
+          mb-2
         ">
           <label className="
             text-sm text-zinc-400
@@ -184,20 +232,22 @@ export default function TradePanel({
             w-full
             bg-zinc-900
             border border-zinc-800
-            rounded-xl
-            px-4 py-3
+            rounded-2xl
+            px-4 py-4
+            text-lg
             outline-none
-            transition
+            transition-all
             focus:border-green-500/40
-            focus:ring-2
+            focus:ring-4
             focus:ring-green-500/10
           "
         />
       </div>
 
-      {/* Quick Quantity */}
+      {/* Quick Buttons */}
       <div className="
-        flex gap-2 flex-wrap mb-5
+        grid grid-cols-5 gap-2
+        mb-6
       ">
         {[0.01, 0.05, 0.1, 0.5, 1].map(
           (q) => (
@@ -205,23 +255,23 @@ export default function TradePanel({
               key={q}
               onClick={() => setQuantity(q)}
               className={`
-                px-3 py-1.5
-                rounded-lg
-                text-sm
-                border
-                transition-all duration-200
+                py-2 rounded-xl
+                text-sm font-medium
+                border transition-all duration-200
                 ${
                   quantity === q
                     ? `
                       bg-green-500/15
                       border-green-500/30
                       text-green-400
+                      scale-[1.03]
                     `
                     : `
                       bg-zinc-900
                       border-zinc-800
                       text-zinc-400
                       hover:bg-zinc-800
+                      hover:text-white
                     `
                 }
               `}
@@ -234,12 +284,12 @@ export default function TradePanel({
 
       {/* Summary */}
       <div className="
-        bg-zinc-900/60
+        rounded-2xl
         border border-zinc-800
-        rounded-xl
+        bg-zinc-900/60
         p-4
-        mb-5
-        space-y-3
+        mb-6
+        space-y-4
       ">
 
         <div className="
@@ -247,11 +297,14 @@ export default function TradePanel({
           text-sm
         ">
           <span className="text-zinc-400">
-            Current Price
+            Entry Price
           </span>
 
           <span className="font-medium">
-            ₹ {price?.toLocaleString() || "--"}
+            ₹{" "}
+            {price
+              ? price.toLocaleString()
+              : "--"}
           </span>
         </div>
 
@@ -260,20 +313,51 @@ export default function TradePanel({
           text-sm
         ">
           <span className="text-zinc-400">
-            Estimated Cost
+            Position Value
+          </span>
+
+          <span className="font-medium">
+            ₹ {totalCost.toFixed(2)}
+          </span>
+        </div>
+
+        <div className="
+          flex items-center justify-between
+          text-sm
+        ">
+          <span className="text-zinc-400">
+            Estimated Fee
+          </span>
+
+          <span className="text-yellow-400">
+            ₹ {estimatedFee.toFixed(2)}
+          </span>
+        </div>
+
+        <div className="
+          border-t border-zinc-800
+          pt-3
+          flex items-center justify-between
+        ">
+          <span className="
+            text-sm text-zinc-300
+          ">
+            Total Cost
           </span>
 
           <span className="
-            font-semibold text-green-400
+            text-lg font-bold text-green-400
           ">
-            ₹ {totalCost}
+            ₹ {finalCost.toFixed(2)}
           </span>
         </div>
+
       </div>
 
-      {/* Buttons */}
+      {/* Trade Buttons */}
       <div className="
-        grid grid-cols-2 gap-3 mb-5
+        grid grid-cols-2 gap-3
+        mb-6
       ">
 
         <button
@@ -284,14 +368,15 @@ export default function TradePanel({
           className="
             bg-green-500
             hover:bg-green-400
+            disabled:opacity-50
             text-black
             font-semibold
-            py-3
-            rounded-xl
+            py-4
+            rounded-2xl
             transition-all duration-200
             hover:scale-[1.02]
             active:scale-[0.98]
-            disabled:opacity-50
+            shadow-lg shadow-green-500/20
           "
         >
           {loading
@@ -307,14 +392,15 @@ export default function TradePanel({
           className="
             bg-red-500
             hover:bg-red-400
+            disabled:opacity-50
             text-white
             font-semibold
-            py-3
-            rounded-xl
+            py-4
+            rounded-2xl
             transition-all duration-200
             hover:scale-[1.02]
             active:scale-[0.98]
-            disabled:opacity-50
+            shadow-lg shadow-red-500/20
           "
         >
           {loading
@@ -324,22 +410,44 @@ export default function TradePanel({
       </div>
 
       {/* Auto Trade */}
-      <label className="
-        flex items-center gap-3
-        text-sm text-zinc-300
+      <div className="
+        border border-zinc-800
+        bg-zinc-900/40
+        rounded-2xl
+        p-4
       ">
+        <label className="
+          flex items-center justify-between
+          cursor-pointer
+        ">
 
-        <input
-          type="checkbox"
-          checked={autoTrade}
-          onChange={() =>
-            setAutoTrade(!autoTrade)
-          }
-          className="accent-green-500"
-        />
+          <div>
+            <p className="
+              text-sm font-medium
+            ">
+              Auto Trade
+            </p>
 
-        Enable Auto Trade
-      </label>
+            <p className="
+              text-xs text-zinc-500 mt-1
+            ">
+              Automatically follow signals
+            </p>
+          </div>
+
+          <input
+            type="checkbox"
+            checked={autoTrade}
+            onChange={() =>
+              setAutoTrade(!autoTrade)
+            }
+            className="
+              h-5 w-5
+              accent-green-500
+            "
+          />
+        </label>
+      </div>
 
     </DashboardCard>
   );

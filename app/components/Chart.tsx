@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import DashboardCard from "./cards/DashboardCard";
+import { useMarketStore } from "../store/useMarketStore";
 
 declare global {
   interface Window {
@@ -17,22 +18,23 @@ const timeframes = [
   { label: "4h", value: "240" },
 ];
 
-export default function Chart({
-  symbol,
-}: {
-  symbol: string;
-}) {
-  const chartRef = useRef<HTMLDivElement>(null);
+export default function Chart() {
+  const chartRef =
+    useRef<HTMLDivElement>(null);
 
-  const [interval, setIntervalState] =
-    useState("15");
+  const {
+    symbol,
+    interval,
+    setInterval,
+  } = useMarketStore();
 
   useEffect(() => {
     if (!chartRef.current) return;
 
     chartRef.current.innerHTML = "";
 
-    const script = document.createElement("script");
+    const script =
+      document.createElement("script");
 
     script.src =
       "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
@@ -43,30 +45,46 @@ export default function Chart({
 
     script.innerHTML = JSON.stringify({
       autosize: true,
+
       symbol: `BINANCE:${symbol}`,
+
       interval,
+
       timezone: "Etc/UTC",
+
       theme: "dark",
+
       style: "1",
+
       locale: "en",
+
       allow_symbol_change: true,
+
       hide_top_toolbar: false,
+
       save_image: false,
-      studies: ["RSI@tv-basicstudies"],
-      container_id: "tradingview_chart",
+
+      studies: [
+        "RSI@tv-basicstudies",
+      ],
+
+      container_id:
+        "tradingview_chart",
     });
 
-    chartRef.current.appendChild(script);
+    chartRef.current.appendChild(
+      script
+    );
 
   }, [symbol, interval]);
 
   return (
     <DashboardCard className="p-0 overflow-hidden">
 
-      {/* Header */}
+      {/* HEADER */}
       <div className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between flex-wrap gap-4">
 
-        {/* Left */}
+        {/* LEFT */}
         <div>
           <h2 className="text-xl font-semibold">
             {symbol}
@@ -77,18 +95,17 @@ export default function Chart({
           </p>
         </div>
 
-        {/* Timeframes */}
+        {/* TIMEFRAMES */}
         <div className="flex gap-2 flex-wrap">
 
           {timeframes.map((time) => (
             <button
               key={time.value}
               onClick={() =>
-                setIntervalState(time.value)
+                setInterval(time.value)
               }
               className={`
-                px-3 py-1.5 rounded-lg text-sm transition
-                border
+                px-3 py-1.5 rounded-lg text-sm transition border
                 ${
                   interval === time.value
                     ? `
@@ -112,7 +129,7 @@ export default function Chart({
         </div>
       </div>
 
-      {/* Chart */}
+      {/* CHART */}
       <div className="h-[500px]">
         <div
           ref={chartRef}

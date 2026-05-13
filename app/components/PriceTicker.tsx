@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import DashboardCard from "./cards/DashboardCard";
+import { useMarketStore } from "../store/useMarketStore";
 
 type MarketData = {
   symbol: string;
@@ -12,11 +13,9 @@ type MarketData = {
   low: number;
 };
 
-export default function PriceTicker({
-  symbol,
-}: {
-  symbol: string;
-}) {
+export default function PriceTicker() {
+  const { symbol } = useMarketStore();
+
   const [market, setMarket] =
     useState<MarketData | null>(null);
 
@@ -27,7 +26,8 @@ export default function PriceTicker({
           `/api/price?symbol=${symbol}`
         );
 
-        const data = await res.json();
+        const data: MarketData =
+          await res.json();
 
         setMarket(data);
 
@@ -38,18 +38,26 @@ export default function PriceTicker({
 
     fetchPrice();
 
-    const interval = setInterval(fetchPrice, 3000);
+    const interval = setInterval(
+      fetchPrice,
+      3000
+    );
 
-    return () => clearInterval(interval);
+    return () =>
+      clearInterval(interval);
+
   }, [symbol]);
 
-  // Loading State
+  // ================= LOADING =================
+
   if (!market) {
     return (
       <DashboardCard>
         <div className="animate-pulse space-y-4">
           <div className="h-5 bg-zinc-800 rounded w-1/4" />
+
           <div className="h-10 bg-zinc-800 rounded w-1/2" />
+
           <div className="grid grid-cols-3 gap-3">
             <div className="h-16 bg-zinc-800 rounded-xl" />
             <div className="h-16 bg-zinc-800 rounded-xl" />
@@ -60,7 +68,8 @@ export default function PriceTicker({
     );
   }
 
-  const isPositive = market.changePercent >= 0;
+  const isPositive =
+    market.changePercent >= 0;
 
   return (
     <DashboardCard className="relative overflow-hidden">
@@ -85,8 +94,9 @@ export default function PriceTicker({
           {/* LEFT */}
           <div className="flex items-center gap-5">
 
-            {/* Live Status */}
+            {/* LIVE */}
             <div className="flex items-center gap-2">
+
               <div
                 className={`
                   w-2.5 h-2.5 rounded-full animate-pulse
@@ -103,7 +113,7 @@ export default function PriceTicker({
               </span>
             </div>
 
-            {/* Symbol */}
+            {/* SYMBOL */}
             <div>
               <h2 className="text-3xl font-bold tracking-tight">
                 {market.symbol}
@@ -151,8 +161,9 @@ export default function PriceTicker({
         {/* STATS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
 
-          {/* High */}
+          {/* HIGH */}
           <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+
             <p className="text-zinc-500 text-sm mb-1">
               24h High
             </p>
@@ -162,8 +173,9 @@ export default function PriceTicker({
             </h3>
           </div>
 
-          {/* Low */}
+          {/* LOW */}
           <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+
             <p className="text-zinc-500 text-sm mb-1">
               24h Low
             </p>
@@ -173,8 +185,9 @@ export default function PriceTicker({
             </h3>
           </div>
 
-          {/* Volume */}
+          {/* VOLUME */}
           <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+
             <p className="text-zinc-500 text-sm mb-1">
               Volume
             </p>
