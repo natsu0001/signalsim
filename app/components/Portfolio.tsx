@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import DashboardCard from "../components/cards/DashboardCard";
 export default function Portfolio() {
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -40,7 +40,7 @@ export default function Portfolio() {
     </p>
 
     <h2 className="text-3xl font-bold tracking-tight">
-      ₹ {balance.toFixed(2)}
+      ₹ {balance?.toFixed(2)}
     </h2>
 
     <p className="text-green-400 text-sm mt-2">

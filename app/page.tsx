@@ -1,6 +1,9 @@
+"use client";
+
+import OpenPositions from "./components/OpenPositions"; 
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
-
+import { useState } from "react";
 import Chart from "./components/Chart";
 import PriceTicker from "./components/PriceTicker";
 import Watchlist from "./components/Watchlist";
@@ -11,7 +14,7 @@ import StatsPanel from "./components/StatsPanel";
 import TradeHistory from "./components/TradeHistory";
 
 export default function Home() {
-  const symbol = "BTCUSDT";
+  const [symbol, setSymbol] = useState("BTCUSDT");
 
   return (
     <div className="flex bg-black min-h-screen text-white">
@@ -20,13 +23,13 @@ export default function Home() {
       <Sidebar />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden ml-64">
+      <main className="flex-1 flex flex-col ml-64 min-h-screen">
 
         {/* Navbar */}
-        <Navbar />
+        <Navbar symbol={symbol} />
 
         {/* Dashboard Content */}
-        <div className="p-4 md:p-6 space-y-6 overflow-y-auto w-full">
+        <div className="p-4 md:p-6 space-y-6 overflow-y-auto w-full max-w-[1800px] mx-auto">
 
           {/* Price Ticker */}
           <PriceTicker symbol={symbol} />
@@ -47,6 +50,8 @@ export default function Home() {
       <TradePanel symbol={symbol} />
     </div>
 
+    <OpenPositions  />
+
     {/* Trade History */}
     <TradeHistory />
 
@@ -54,7 +59,10 @@ export default function Home() {
 
   {/* RIGHT SIDE */}
   <div className="sticky top-6 h-fit">
-    <Watchlist />
+    <Watchlist
+     symbol={symbol}
+     setSymbol={setSymbol}
+    />
   </div>
 
 </div>

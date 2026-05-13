@@ -10,10 +10,12 @@ export async function GET(req: Request) {
       `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=15m&limit=100`
     );
 
-    const data = await res.json();
+    const data: string[][] = await res.json();
 
     // Extract closing prices
-    const closes = data.map((candle: any) => parseFloat(candle[4]));
+   const closes = data.map(
+  (candle) => parseFloat(candle[4])
+);
 
     // Calculate RSI
     const rsiValues = calculateRSI(closes);

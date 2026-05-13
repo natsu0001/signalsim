@@ -1,9 +1,10 @@
 "use client";
 import DashboardCard from "../components/cards/DashboardCard";
+import { Trade } from "../types/trade";
 import { useEffect, useState } from "react";
 
 export default function TradeHistory() {
-  const [trades, setTrades] = useState<any[]>([]);
+  const [trades, setTrades] = useState<Trade[]>([]);
 
   useEffect(() => {
     const fetchTrades = async () => {
@@ -18,8 +19,11 @@ export default function TradeHistory() {
     return () => clearInterval(interval);
   }, []);
 
-  const calculatePnL = (trade: any) => {
-    if (trade.status !== "CLOSED") return 0;
+ const calculatePnL = (trade: Trade) => {
+  if (trade.status !== "CLOSED" || trade.exitPrice == null) {
+    return 0;
+   }
+
     return (trade.exitPrice - trade.price) * trade.quantity;
   };
 

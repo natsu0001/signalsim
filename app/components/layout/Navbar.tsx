@@ -1,35 +1,63 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+type NavbarProps = {
+  symbol: string;
+};
 
-export default function Navbar() {
+export default function Navbar({
+  symbol,
+}: NavbarProps) {
   return (
-    <header className="h-16 border-b border-zinc-800 bg-zinc-950 flex items-center justify-between px-6">
-      <div>
-  <h2 className="text-white text-2xl font-bold tracking-tight">
-    Trading Dashboard
-  </h2>
+    <header
+      className="
+        sticky top-0 z-40
+        backdrop-blur-xl
+        bg-black/40
+        border-b border-zinc-800
+      "
+    >
+      <div className="px-6 py-4 flex items-center justify-between">
 
-  <p className="text-zinc-400 text-sm">
-    AI-powered signal simulator
-  </p>
-      </div>
+        {/* Left */}
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Dashboard
+          </h1>
 
-      <div className="flex items-center gap-4">
-        <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2">
-          <Search size={16} className="text-zinc-500" />
-
-          <input
-            placeholder="Search..."
-            className="bg-transparent outline-none text-sm ml-2 text-white"
-          />
+          <p className="text-zinc-500 text-sm mt-1">
+            Real-time trading simulator
+          </p>
         </div>
 
-        <button className="bg-zinc-900 border border-zinc-800 p-2 rounded-xl hover:bg-zinc-800 transition">
-          <Bell size={18} className="text-zinc-300" />
-        </button>
+        {/* Active Symbol */}
+        <div
+          className="
+            flex items-center gap-3
+            bg-zinc-900/70
+            border border-green-500/20
+            rounded-2xl
+            px-4 py-2
+          "
+        >
 
-        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-400 to-emerald-600" />
+          {/* Live Dot */}
+          <div className="relative">
+
+            <div className="w-3 h-3 rounded-full bg-green-400" />
+
+            <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-60" />
+          </div>
+
+          <div>
+            <p className="text-xs text-zinc-500">
+              Active Market
+            </p>
+
+            <p className="font-semibold text-green-400">
+              {symbol}
+            </p>
+          </div>
+        </div>
       </div>
     </header>
   );
