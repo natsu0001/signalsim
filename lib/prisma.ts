@@ -2,12 +2,28 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+// 1. Check for the connection string immediately to avoid silent failures
+if (!process.env.DATABASE_URL) {
+  throw new Error('Please define the DATABASE_URL environment variable inside .env or Vercel settings');
+}
+
+const connectionString = process.env.DATABASE_URL
+
+// 2. Setup the adapter
+const pool = new Pool({ connectionString })
 const adapter = new PrismaPg(pool)
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+// 3. Prevent multiple instances of Prisma Client in development
+const prismaClientSingleton = () => {
+  return new PrismaClient({ adapter })
+}
 
-export const prisma =
-  globalForPrisma.prisma || new PrismaClient({ adapter }) // Pass the adapter here
+type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClientSingleton | undefined
+}
+
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
