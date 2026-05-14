@@ -9,7 +9,7 @@ export default function TradeHistory() {
   useEffect(() => {
     const fetchTrades = async () => {
   try {
-    const res = await fetch("/api/trade");
+    const res = await fetch("/api/trades");
 
     const data: Trade[] =
       await res.json();
