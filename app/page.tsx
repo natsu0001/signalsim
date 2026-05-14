@@ -1,5 +1,5 @@
 "use client";
-import {  useState } from "react";
+import {  useState, useEffect } from "react";
 import OpenPositions from "./components/OpenPositions";
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
@@ -14,13 +14,24 @@ import TradeHistory from "./components/TradeHistory";
 
 import { useMarketStore } from "./store/useMarketStore";
 
-export const dynamic = 'force-dynamic';
+
 
 export default function Home() {
   const { symbol } = useMarketStore();
 
   const [sidebarOpen, setSidebarOpen] =
   useState(false);
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 2. Return null or a loading spinner until the component has mounted
+  if (!mounted) {
+    return <div className="bg-black min-h-screen" />; 
+  }
 
   return (
     <div className="flex bg-black min-h-screen text-white">
