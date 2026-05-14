@@ -1,5 +1,5 @@
 "use client";
-
+import {  useState } from "react";
 import OpenPositions from "./components/OpenPositions";
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
@@ -17,17 +17,27 @@ import { useMarketStore } from "./store/useMarketStore";
 export default function Home() {
   const { symbol } = useMarketStore();
 
+  const [sidebarOpen, setSidebarOpen] =
+  useState(false);
+
   return (
     <div className="flex bg-black min-h-screen text-white">
 
       {/* SIDEBAR */}
-      <Sidebar />
+      <Sidebar
+       open={sidebarOpen}
+        setOpen={setSidebarOpen}
+        />
 
       {/* MAIN */}
       <main className="flex-1 flex flex-col ml-64 min-h-screen">
 
         {/* NAVBAR */}
-        <Navbar symbol={symbol} />
+        <Navbar
+      
+         sidebarOpen={sidebarOpen}
+         setSidebarOpen={setSidebarOpen}
+           />
 
         {/* CONTENT */}
         <div className="p-4 md:p-6 space-y-6 overflow-y-auto w-full max-w-[1800px] mx-auto">

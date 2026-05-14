@@ -1,97 +1,161 @@
 "use client";
 
-import {
-  LayoutDashboard,
-  Wallet,
-  LineChart,
-  History,
-  Settings,
-} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const items = [
-  {
-    name: "Dashboard",
-    icon: LayoutDashboard,
-    active: true,
-  },
-  {
-    name: "Portfolio",
-    icon: Wallet,
-    active: false,
-  },
-  {
-    name: "Signals",
-    icon: LineChart,
-    active: false,
-  },
-  {
-    name: "History",
-    icon: History,
-    active: false,
-  },
-  {
-    name: "Settings",
-    icon: Settings,
-    active: false,
-  },
+type SidebarProps = {
+  open: boolean;
+  setOpen: React.Dispatch<
+    React.SetStateAction<boolean>
+  >;
+};
+
+const navItems = [
+  "Dashboard",
+  "Portfolio",
+  "Trades",
+  "Signals",
+  "Settings",
 ];
 
-export default function Sidebar() {
+export default function Sidebar({
+  open,
+  setOpen,
+}: SidebarProps) {
   return (
-    <aside className="
-    fixed left-0 top-0
-    w-64 h-screen
-    bg-zinc-950/70
-    backdrop-blur-xl
-    border-r border-zinc-800
-    p-4
-    hidden md:flex flex-col
-    z-50
-  ">
-      <div className="mb-10">
-        <h1 className="text-2xl font-bold text-white">
-          SignalSim
+    <>
+      {/* Desktop Sidebar */}
+      <aside
+        className="
+          hidden lg:flex
+          fixed left-0 top-0
+          h-screen w-64
+          bg-zinc-950
+          border-r border-zinc-800
+          flex-col
+          p-6
+          z-40
+        "
+      >
+
+        <h1
+          className="
+            text-2xl font-bold
+            text-green-400
+            mb-10
+          "
+        >
+          SIGSIM
         </h1>
 
-        <p className="text-zinc-500 text-sm mt-1">
-          Trading Simulator
-        </p>
-      </div>
+        <nav className="space-y-2">
 
-      <nav className="space-y-2">
-        {items.map((item) => {
-          const Icon = item.icon;
-
-          return (
+          {navItems.map((item) => (
             <button
-              key={item.name}
-              className={`
-  w-full flex items-center gap-3 px-4 py-3 rounded-xl transition
-  ${
-    item.active
-      ? "bg-green-500/10 text-green-400 border border-green-500/20"
-      : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
-  }
-`}
+              key={item}
+              className="
+                w-full text-left
+                px-4 py-3
+                rounded-xl
+                text-zinc-400
+                hover:bg-zinc-900
+                hover:text-white
+                transition
+              "
             >
-              <Icon size={18} />
-              <span>{item.name}</span>
+              {item}
             </button>
-          );
-        })}
-      </nav>
+          ))}
 
-      <div className="mt-auto">
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <p className="text-sm text-zinc-400">
-            Signal Engine
-          </p>
+        </nav>
+      </aside>
 
-          <p className="text-green-400 font-semibold mt-1">
-            ACTIVE
-          </p>
-        </div>
-      </div>
-    </aside>
+      {/* Mobile Sidebar */}
+      <AnimatePresence>
+
+        {open && (
+          <>
+            {/* Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+
+              onClick={() =>
+                setOpen(false)
+              }
+
+              className="
+                fixed inset-0
+                bg-black/60
+                backdrop-blur-sm
+                z-40
+                lg:hidden
+              "
+            />
+
+            {/* Sidebar */}
+            <motion.aside
+              initial={{ x: -300 }}
+              animate={{ x: 0 }}
+              exit={{ x: -300 }}
+
+              transition={{
+                type: "spring",
+                damping: 25,
+              }}
+
+              className="
+                fixed left-0 top-0
+                h-screen w-64
+                bg-zinc-950
+                border-r border-zinc-800
+                p-6
+                z-50
+                lg:hidden
+              "
+            >
+
+              <h1
+                className="
+                  text-2xl font-bold
+                  text-green-400
+                  mb-10
+                "
+              >
+                SIGSIM
+              </h1>
+
+              <nav className="space-y-2">
+
+                {navItems.map((item) => (
+                  <button
+                    key={item}
+
+                    onClick={() =>
+                      setOpen(false)
+                    }
+
+                    className="
+                      w-full text-left
+                      px-4 py-3
+                      rounded-xl
+                      text-zinc-400
+                      hover:bg-zinc-900
+                      hover:text-white
+                      transition
+                    "
+                  >
+                    {item}
+                  </button>
+                ))}
+
+              </nav>
+
+            </motion.aside>
+          </>
+        )}
+
+      </AnimatePresence>
+    </>
   );
 }

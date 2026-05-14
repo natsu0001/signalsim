@@ -1,5 +1,5 @@
 "use client";
-
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import DashboardCard from "./cards/DashboardCard";
 
@@ -124,8 +124,29 @@ export default function OpenPositions() {
               : 0;
 
           return (
-            <div
-              key={position.id}
+            <motion.div
+  key={position.id}
+
+  initial={{
+    opacity: 0,
+    y: 20,
+    scale: 0.98,
+  }}
+
+  animate={{
+    opacity: 1,
+    y: 0,
+    scale: 1,
+  }}
+
+  transition={{
+    duration: 0.3,
+  }}
+
+  whileHover={{
+    scale: 1.01,
+  }}
+              
               className="
                 border border-zinc-800
                 bg-zinc-900/50
@@ -213,7 +234,7 @@ export default function OpenPositions() {
                   ₹ {pnl.toFixed(2)}
                 </p>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>

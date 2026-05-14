@@ -1,6 +1,7 @@
 "use client";
 import { useMarketStore } from "../store/useMarketStore";
 import DashboardCard from "./cards/DashboardCard";
+import { motion } from "framer-motion";
 
 const watchlist = [
   {
@@ -48,7 +49,16 @@ export default function Watchlist() {
           const isActive = symbol === item.symbol;
 
           return (
-            <button
+            <motion.button
+            whileHover={{
+            scale: 1.02,
+            }}
+
+           whileTap={{
+              scale: 0.98,
+          }}
+
+             layout
               key={item.symbol}
               onClick={() => setSymbol(item.symbol)}
               className={`
@@ -103,7 +113,7 @@ export default function Watchlist() {
                   {item.change}
                 </p>
               </div>
-            </button>
+            </motion.button>
           );
         })}
       </div>
