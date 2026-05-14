@@ -14,6 +14,8 @@ import TradeHistory from "./components/TradeHistory";
 
 import { useMarketStore } from "./store/useMarketStore";
 
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   const { symbol } = useMarketStore();
 
