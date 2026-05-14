@@ -1,45 +1,74 @@
 import { prisma } from "@/lib/prisma";
 
+type StatsResponse = {
+  totalTrades: number;
+  wins: number;
+  losses: number;
+  winRate: number;
+};
+
 export async function GET() {
-  const user = await prisma.user.findFirst();
+  try {
+    // ================= FETCH CLOSED TRADES =================
 
-  if (!user) {
-    return Response.json({});
+    const closedTrades =
+      await prisma.trade.findMany({
+        where: {
+          status: "CLOSED",
+        },
+        select: {
+          price: true,
+          exitPrice: true,
+        },
+      });
+
+    // ================= CALCULATIONS =================
+
+    const totalTrades =
+      closedTrades.length;
+
+    let wins = 0;
+    let losses = 0;
+
+    for (const trade of closedTrades) {
+      if (
+        trade.exitPrice &&
+        trade.exitPrice > trade.price
+      ) {
+        wins++;
+      } else {
+        losses++;
+      }
+    }
+
+    const winRate =
+      totalTrades > 0
+        ? (wins / totalTrades) * 100
+        : 0;
+
+    // ================= RESPONSE =================
+
+    const result: StatsResponse =
+      {
+        totalTrades,
+        wins,
+        losses,
+        winRate,
+      };
+
+    return Response.json(result);
+
+  } catch (error) {
+    console.error(error);
+
+    return Response.json(
+      {
+        error:
+          "Failed to fetch stats",
+      },
+      {
+        status: 500,
+      }
+    );
   }
-
-  const trades = await prisma.trade.findMany({
-    where: {
-      userId: user.id,
-      status: "CLOSED",
-    },
-  });
-
-  let wins = 0;
-  let losses = 0;
-  let totalPnL = 0;
-
-  trades.forEach((trade) => {
-    if (!trade.exitPrice) return;
-
-    const pnl =
-      (trade.exitPrice - trade.price) * trade.quantity;
-
-    totalPnL += pnl;
-
-    if (pnl > 0) wins++;
-    else losses++;
-  });
-
-  const winRate =
-    trades.length > 0
-      ? (wins / trades.length) * 100
-      : 0;
-
-  return Response.json({
-    totalTrades: trades.length,
-    wins,
-    losses,
-    winRate,
-    totalPnL,
-  });
 }

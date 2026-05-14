@@ -1,152 +1,194 @@
 import { prisma } from "@/lib/prisma";
+import { tradeSchema } from "@/lib/validators/tradeValidator";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const { symbol, type, price, quantity } = body;
-
     // ================= VALIDATION =================
 
-    if (!symbol || !type || !price || !quantity) {
+    const validation =
+      tradeSchema.safeParse(body);
+
+    if (!validation.success) {
       return Response.json(
-        { error: "Missing required fields" },
+        {
+          error:
+            validation.error.issues[0]?.message ||
+            "Invalid request data",
+        },
         { status: 400 }
       );
     }
 
-    if (type !== "BUY" && type !== "SELL") {
-      return Response.json(
-        { error: "Invalid trade type" },
-        { status: 400 }
-      );
-    }
+    const {
+      symbol,
+      type,
+      price,
+      quantity,
+    } = validation.data;
 
-    if (quantity <= 0) {
-      return Response.json(
-        { error: "Invalid quantity" },
-        { status: 400 }
-      );
-    }
+    // ================= TRANSACTION =================
 
-    return await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(
+      async (tx) => {
 
-      let user = await tx.user.findFirst();
+        // ================= USER =================
 
-      if (!user) {
-        user = await tx.user.create({});
-      }
+        let user =
+          await tx.user.findFirst();
 
-      const currentUser = await tx.user.findUnique({
-        where: { id: user.id },
-      });
+        if (!user) {
+          user = await tx.user.create({
+            data: {},
+          });
+        }
 
-      if (!currentUser) {
-        throw new Error("User not found");
-      }
+        const currentUser =
+          await tx.user.findUnique({
+            where: { id: user.id },
+          });
 
-      // ================= BUY =================
-
-      if (type === "BUY") {
-
-        const cost = price * quantity;
-
-        if (currentUser.balance < cost) {
+        if (!currentUser) {
           return Response.json(
             {
-              error: "Insufficient balance",
+              error: "User not found",
+            },
+            { status: 404 }
+          );
+        }
+
+        // ================= BUY =================
+
+        if (type === "BUY") {
+
+          const cost =
+            price * quantity;
+
+          if (
+            currentUser.balance < cost
+          ) {
+            return Response.json(
+              {
+                error:
+                  "Insufficient balance",
+              },
+              { status: 400 }
+            );
+          }
+
+          const trade =
+            await tx.trade.create({
+              data: {
+                userId: user.id,
+                symbol,
+                type,
+                price,
+                quantity,
+                status: "OPEN",
+              },
+            });
+
+          const updatedUser =
+            await tx.user.update({
+              where: { id: user.id },
+              data: {
+                balance:
+                  currentUser.balance -
+                  cost,
+              },
+            });
+
+          return Response.json({
+            success: true,
+            message: "BUY executed",
+            trade,
+            balance:
+              updatedUser.balance,
+          });
+        }
+
+        // ================= SELL =================
+
+        const openTrade =
+          await tx.trade.findFirst({
+            where: {
+              userId: user.id,
+              symbol,
+              status: "OPEN",
+            },
+
+            orderBy: {
+              createdAt: "asc",
+            },
+          });
+
+        if (!openTrade) {
+          return Response.json(
+            {
+              error:
+                "No open position found",
             },
             { status: 400 }
           );
         }
 
-        const trade = await tx.trade.create({
-          data: {
-            userId: user.id,
-            symbol,
-            type,
-            price,
-            quantity,
-          },
-        });
-
-        const updatedUser = await tx.user.update({
-          where: { id: user.id },
-          data: {
-            balance: currentUser.balance - cost,
-          },
-        });
-
-        return Response.json({
-          success: true,
-          message: "BUY executed",
-          trade,
-          balance: updatedUser.balance,
-        });
-      }
-
-      // ================= SELL =================
-
-      if (type === "SELL") {
-
-        const openTrade = await tx.trade.findFirst({
-          where: {
-            userId: user.id,
-            symbol,
-            status: "OPEN",
-          },
-        });
-
-        if (!openTrade) {
-          return Response.json(
-            { error: "No open trade found" },
-            { status: 400 }
-          );
-        }
-
-        const sellValue = price * openTrade.quantity;
+        const sellValue =
+          price * openTrade.quantity;
 
         const pnl =
           (price - openTrade.price) *
           openTrade.quantity;
 
-        const updatedTrade = await tx.trade.update({
-          where: { id: openTrade.id },
-          data: {
-            status: "CLOSED",
-            exitPrice: price,
-            closedAt: new Date(),
-          },
-        });
+        const updatedTrade =
+          await tx.trade.update({
+            where: {
+              id: openTrade.id,
+            },
 
-        const updatedUser = await tx.user.update({
-          where: { id: user.id },
-          data: {
-            balance: currentUser.balance + sellValue,
-          },
-        });
+            data: {
+              status: "CLOSED",
+              exitPrice: price,
+              closedAt: new Date(),
+            },
+          });
+
+        const updatedUser =
+          await tx.user.update({
+            where: { id: user.id },
+
+            data: {
+              balance:
+                currentUser.balance +
+                sellValue,
+            },
+          });
 
         return Response.json({
           success: true,
           message: "SELL executed",
           trade: updatedTrade,
           pnl,
-          balance: updatedUser.balance,
+          balance:
+            updatedUser.balance,
         });
-      }
+      },
 
-      return Response.json(
-        { error: "Invalid request" },
-        { status: 400 }
-      );
-    });
+      {
+        timeout: 10000,
+      }
+    );
 
   } catch (error) {
-    console.error(error);
+    console.error(
+      "TRADE API ERROR:",
+      error
+    );
 
     return Response.json(
       {
-        error: "Internal server error",
+        error:
+          "Something went wrong while executing trade",
       },
       { status: 500 }
     );

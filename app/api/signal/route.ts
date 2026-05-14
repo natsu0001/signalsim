@@ -1,38 +1,114 @@
 import { calculateRSI } from "@/lib/indicators";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const symbol = searchParams.get("symbol") || "BTCUSDT";
+type BinanceKline = [
+  number,
+  string,
+  string,
+  string,
+  string,
+  string,
+  number,
+  string,
+  number,
+  string,
+  string,
+  string
+];
+
+type SignalType =
+  | "BUY"
+  | "SELL"
+  | "HOLD";
+
+type SignalResponse = {
+  symbol: string;
+  rsi: number;
+  signal: SignalType;
+};
+
+export async function GET(
+  req: Request
+) {
+  const { searchParams } =
+    new URL(req.url);
+
+  const symbol =
+    searchParams.get("symbol") ??
+    "BTCUSDT";
 
   try {
-    // Fetch historical candles
-    const res = await fetch(
-      `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=15m&limit=100`
+    // ================= FETCH KLINES =================
+
+    const response = await fetch(
+      `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=15m&limit=100`,
+      {
+        cache: "no-store",
+      }
     );
 
-    const data: string[][] = await res.json();
+    if (!response.ok) {
+      return Response.json(
+        {
+          error:
+            "Failed to fetch market data",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
 
-    // Extract closing prices
-   const closes = data.map(
-  (candle) => parseFloat(candle[4])
-);
+    const data: BinanceKline[] =
+      await response.json();
 
-    // Calculate RSI
-    const rsiValues = calculateRSI(closes);
-    const latestRSI = rsiValues[rsiValues.length - 1];
+    // ================= CLOSE PRICES =================
 
-    let signal = "HOLD";
+    const closes = data.map(
+      (candle) =>
+        Number(candle[4])
+    );
 
-    if (latestRSI < 30) signal = "BUY";
-    else if (latestRSI > 70) signal = "SELL";
+    // ================= RSI =================
 
-    return Response.json({
-      symbol,
-      rsi: latestRSI,
-      signal,
-    });
+    const rsiValues =
+      calculateRSI(closes);
+
+    const latestRSI =
+      rsiValues[
+        rsiValues.length - 1
+      ];
+
+    let signal: SignalType =
+      "HOLD";
+
+    if (latestRSI < 30) {
+      signal = "BUY";
+    } else if (
+      latestRSI > 70
+    ) {
+      signal = "SELL";
+    }
+
+    const result: SignalResponse =
+      {
+        symbol,
+        rsi: latestRSI,
+        signal,
+      };
+
+    return Response.json(result);
 
   } catch (error) {
-    return Response.json({ error: "Signal failed" }, { status: 500 });
+    console.error(error);
+
+    return Response.json(
+      {
+        error:
+          "Signal generation failed",
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }

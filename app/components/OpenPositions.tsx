@@ -109,134 +109,176 @@ export default function OpenPositions() {
       {/* Positions */}
       <div className="space-y-3">
 
-        {positions.map((position) => {
+{positions.map((position) => {
 
-          const currentPrice =
-            prices[position.symbol];
+  const currentPrice =
+    prices[position.symbol];
 
-          const pnl =
-            currentPrice
-              ? calculatePnL(
-                  position.price,
-                  currentPrice,
+  const pnl =
+    currentPrice
+      ? calculatePnL(
+          position.price,
+          currentPrice,
+          position.quantity
+        )
+      : 0;
+
+  const pnlPercent =
+    currentPrice
+      ? (
+          ((currentPrice -
+            position.price) /
+            position.price) *
+          100
+        ).toFixed(2)
+      : "0";
+
+  const isProfit = pnl >= 0;
+
+  return (
+    <motion.div
+      key={position.id}
+
+      initial={{
+        opacity: 0,
+        y: 20,
+        scale: 0.98,
+      }}
+
+      animate={{
+        opacity: 1,
+        y: 0,
+        scale: 1,
+      }}
+
+      transition={{
+        duration: 0.3,
+      }}
+
+      whileHover={{
+        scale: 1.01,
+      }}
+
+      className={`
+        border
+        rounded-2xl
+        p-4
+        transition-all duration-300
+        ${
+          isProfit
+            ? `
+              border-green-500/20
+              bg-green-500/[0.03]
+              hover:bg-green-500/[0.05]
+            `
+            : `
+              border-red-500/20
+              bg-red-500/[0.03]
+              hover:bg-red-500/[0.05]
+            `
+        }
+      `}
+    >
+
+      {/* Top */}
+      <div className="flex items-center justify-between">
+
+        <div>
+          <h3 className="font-semibold">
+            {position.symbol}
+          </h3>
+
+          <p className="text-xs text-zinc-500 mt-1">
+            Qty: {position.quantity}
+          </p>
+        </div>
+
+        <div className="text-right">
+
+          <p className="text-sm text-zinc-400">
+            Live Price
+          </p>
+
+          <p className="font-semibold">
+            ₹ {currentPrice?.toLocaleString() || "--"}
+          </p>
+        </div>
+      </div>
+
+      {/* Middle */}
+      <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+
+        <div>
+          <p className="text-zinc-500 mb-1">
+            Entry
+          </p>
+
+          <p>
+            ₹ {position.price.toLocaleString()}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-zinc-500 mb-1">
+            Current Value
+          </p>
+
+          <p>
+            ₹{" "}
+            {currentPrice
+              ? (
+                  currentPrice *
                   position.quantity
-                )
-              : 0;
+                ).toFixed(2)
+              : "--"}
+          </p>
+        </div>
+      </div>
 
-          return (
-            <motion.div
-  key={position.id}
+      {/* Bottom */}
+      <div className="mt-4 flex items-center justify-between">
 
-  initial={{
-    opacity: 0,
-    y: 20,
-    scale: 0.98,
-  }}
+        <p className="text-xs text-zinc-500">
+          {new Date(
+            position.createdAt
+          ).toLocaleString()}
+        </p>
 
-  animate={{
-    opacity: 1,
-    y: 0,
-    scale: 1,
-  }}
+        <div className="text-right">
 
-  transition={{
-    duration: 0.3,
-  }}
+          <p
+            className={`
+              font-bold text-lg
+              ${
+                isProfit
+                  ? "text-green-400"
+                  : "text-red-400"
+              }
+            `}
+          >
+            {isProfit ? "+" : ""}
+            ₹ {pnl.toFixed(2)}
+          </p>
 
-  whileHover={{
-    scale: 1.01,
-  }}
-              
-              className="
-                border border-zinc-800
-                bg-zinc-900/50
-                rounded-xl
-                p-4
-              "
-            >
+          <p
+            className={`
+              text-xs mt-1
+              ${
+                isProfit
+                  ? "text-green-300"
+                  : "text-red-300"
+              }
+            `}
+          >
+            {isProfit ? "+" : ""}
+            {pnlPercent}%
+          </p>
 
-              {/* Top */}
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-semibold">
-                    {position.symbol}
-                  </h3>
-
-                  <p className="text-xs text-zinc-500 mt-1">
-                    Qty: {position.quantity}
-                  </p>
-                  
-                </div>
-
-                <div className="text-right">
-
-                  <p className="text-sm text-zinc-400">
-                    Live Price
-                  </p>
-
-                  <p className="font-semibold">
-                    ₹ {currentPrice?.toLocaleString() || "--"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Middle */}
-              <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-
-                <div>
-                  <p className="text-zinc-500 mb-1">
-                    Entry
-                  </p>
-
-                  <p>
-                    ₹ {position.price.toLocaleString()}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-zinc-500 mb-1">
-                    Current Value
-                  </p>
-
-                  <p>
-                    ₹{" "}
-                    {currentPrice
-                      ? (
-                          currentPrice *
-                          position.quantity
-                        ).toFixed(2)
-                      : "--"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Bottom */}
-              <div className="mt-4 flex items-center justify-between">
-
-                <p className="text-xs text-zinc-500">
-                  {new Date(
-                    position.createdAt
-                  ).toLocaleString()}
-                </p>
-
-                <p
-                  className={`
-                    font-semibold
-                    ${
-                      pnl >= 0
-                        ? "text-green-400"
-                        : "text-red-400"
-                    }
-                  `}
-                >
-                  {pnl >= 0 ? "+" : ""}
-                  ₹ {pnl.toFixed(2)}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
+        </div>
+      </div>
+    </motion.div>
+  );
+})}
       </div>
     </DashboardCard>
   );

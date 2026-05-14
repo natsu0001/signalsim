@@ -1,6 +1,7 @@
 "use client";
 
 import DashboardCard from "../components/cards/DashboardCard";
+
 import {
   useEffect,
   useMemo,
@@ -36,12 +37,20 @@ export default function SignalPanel() {
   const [loading, setLoading] =
     useState(true);
 
+  // ================= FETCH SIGNAL =================
+
   useEffect(() => {
     const fetchSignal = async () => {
       try {
         const res = await fetch(
           `/api/signal?symbol=${symbol}`
         );
+
+        if (!res.ok) {
+          throw new Error(
+            "Failed to fetch signal"
+          );
+        }
 
         const data: SignalResponse =
           await res.json();
@@ -52,7 +61,6 @@ export default function SignalPanel() {
 
       } catch (error) {
         console.error(error);
-
       } finally {
         setLoading(false);
       }
@@ -82,6 +90,8 @@ export default function SignalPanel() {
             "border-green-500/20",
           glow:
             "shadow-green-500/20",
+          ring:
+            "ring-green-500/10",
           emoji: "🟢",
         };
 
@@ -93,6 +103,8 @@ export default function SignalPanel() {
             "border-red-500/20",
           glow:
             "shadow-red-500/20",
+          ring:
+            "ring-red-500/10",
           emoji: "🔴",
         };
 
@@ -104,6 +116,8 @@ export default function SignalPanel() {
             "border-yellow-500/20",
           glow:
             "shadow-yellow-500/20",
+          ring:
+            "ring-yellow-500/10",
           emoji: "🟡",
         };
     }
@@ -112,7 +126,8 @@ export default function SignalPanel() {
   // ================= RSI STATUS =================
 
   const rsiStatus = useMemo(() => {
-    if (!rsi) return "Loading";
+    if (rsi === null)
+      return "Loading";
 
     if (rsi < 30)
       return "Oversold";
@@ -121,6 +136,17 @@ export default function SignalPanel() {
       return "Overbought";
 
     return "Neutral";
+  }, [rsi]);
+
+  // ================= RSI PROGRESS =================
+
+  const rsiProgress = useMemo(() => {
+    if (!rsi) return 0;
+
+    return Math.min(
+      Math.max(rsi, 0),
+      100
+    );
   }, [rsi]);
 
   // ================= LOADING =================
@@ -133,18 +159,19 @@ export default function SignalPanel() {
           <div className="flex items-center justify-between">
 
             <div className="space-y-2">
-              <div className="h-4 w-20 bg-zinc-800 rounded" />
+              <div className="h-4 w-24 bg-zinc-800 rounded" />
 
-              <div className="h-10 w-28 bg-zinc-800 rounded" />
+              <div className="h-8 w-32 bg-zinc-800 rounded" />
             </div>
 
             <div className="w-14 h-14 rounded-2xl bg-zinc-800" />
           </div>
 
-          <div className="space-y-3">
-            <div className="h-4 w-full bg-zinc-800 rounded" />
+          <div className="h-32 rounded-2xl bg-zinc-800" />
 
-            <div className="h-4 w-5/6 bg-zinc-800 rounded" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="h-24 rounded-2xl bg-zinc-800" />
+            <div className="h-24 rounded-2xl bg-zinc-800" />
           </div>
 
         </div>
@@ -155,13 +182,17 @@ export default function SignalPanel() {
   return (
     <DashboardCard className="relative overflow-hidden">
 
-      {/* Background Glow */}
+      {/* Animated Background */}
       <motion.div
         key={signal}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.1 }}
+        initial={{
+          opacity: 0,
+        }}
+        animate={{
+          opacity: 0.08,
+        }}
         transition={{
-          duration: 0.3,
+          duration: 0.4,
         }}
         className={`
           absolute inset-0
@@ -179,40 +210,23 @@ export default function SignalPanel() {
       <div className="relative">
 
         {/* Header */}
-        <div
-          className="
-            flex items-center
-            justify-between
-            mb-5
-          "
-        >
+        <div className="flex items-center justify-between mb-6">
 
           <div>
-            <p
-              className="
-                text-zinc-400
-                text-sm
-              "
-            >
+            <p className="text-zinc-400 text-sm">
               AI Signal
             </p>
 
-            <h2
-              className="
-                text-2xl
-                font-bold
-                mt-1
-              "
-            >
+            <h2 className="text-2xl font-bold mt-1">
               {symbol}
             </h2>
           </div>
 
-          {/* Signal Icon */}
+          {/* Animated Icon */}
           <motion.div
             key={signal}
             initial={{
-              scale: 0.8,
+              scale: 0.7,
               opacity: 0,
             }}
             animate={{
@@ -225,14 +239,15 @@ export default function SignalPanel() {
             className={`
               w-14 h-14
               rounded-2xl
-              flex items-center
-              justify-center
+              flex items-center justify-center
               text-2xl
               border
               shadow-lg
+              ring-8
               ${signalStyles.bg}
               ${signalStyles.border}
               ${signalStyles.glow}
+              ${signalStyles.ring}
             `}
           >
             {signalStyles.emoji}
@@ -240,89 +255,141 @@ export default function SignalPanel() {
 
         </div>
 
-        {/* Main Signal */}
+        {/* Main Signal Card */}
         <motion.div
           layout
           className={`
-            rounded-2xl
+            rounded-3xl
             border
             p-5
             mb-5
-            transition-all
-            duration-300
+            backdrop-blur-sm
+            shadow-lg
+            transition-all duration-300
             ${signalStyles.bg}
             ${signalStyles.border}
           `}
         >
 
-          <p
-            className="
-              text-zinc-400
-              text-sm
-              mb-2
-            "
-          >
-            Current Signal
-          </p>
+          <div className="flex items-center justify-between mb-4">
 
-          <AnimatePresence
-            mode="wait"
-          >
+            <div>
+              <p className="text-zinc-400 text-sm">
+                Current Signal
+              </p>
 
-            <motion.h1
-              key={signal}
-              initial={{
-                opacity: 0,
-                y: 10,
-                scale: 0.95,
-              }}
+              <AnimatePresence mode="wait">
+
+                <motion.h1
+                  key={signal}
+                  initial={{
+                    opacity: 0,
+                    y: 10,
+                    scale: 0.95,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    y: -10,
+                    scale: 0.95,
+                  }}
+                  transition={{
+                    duration: 0.2,
+                  }}
+                  className={`
+                    text-5xl
+                    font-black
+                    tracking-tight
+                    mt-2
+                    ${signalStyles.text}
+                  `}
+                >
+                  {signal}
+                </motion.h1>
+
+              </AnimatePresence>
+
+            </div>
+
+            {/* Pulse Dot */}
+            <motion.div
               animate={{
-                opacity: 1,
-                y: 0,
-                scale: 1,
-              }}
-              exit={{
-                opacity: 0,
-                y: -10,
-                scale: 0.95,
+                scale: [1, 1.2, 1],
+                opacity: [0.7, 1, 0.7],
               }}
               transition={{
-                duration: 0.2,
+                duration: 1.5,
+                repeat: Infinity,
               }}
               className={`
-                text-5xl
-                font-bold
-                tracking-tight
-                ${signalStyles.text}
+                w-4 h-4 rounded-full
+                ${
+                  signal === "BUY"
+                    ? "bg-green-400"
+                    : signal === "SELL"
+                    ? "bg-red-400"
+                    : "bg-yellow-400"
+                }
               `}
-            >
-              {signal}
-            </motion.h1>
+            />
 
-          </AnimatePresence>
+          </div>
 
-          <p
-            className="
-              text-zinc-500
-              text-sm
-              mt-3
-            "
-          >
-            Based on RSI momentum
-            analysis
+          {/* RSI Progress */}
+          <div className="mb-3">
+
+            <div className="flex items-center justify-between mb-2 text-sm">
+              <span className="text-zinc-400">
+                RSI Strength
+              </span>
+
+              <span className="font-medium">
+                {rsi?.toFixed(2)}
+              </span>
+            </div>
+
+            <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+
+              <motion.div
+                initial={{
+                  width: 0,
+                }}
+                animate={{
+                  width: `${rsiProgress}%`,
+                }}
+                transition={{
+                  duration: 0.5,
+                }}
+                className={`
+                  h-full rounded-full
+                  ${
+                    signal === "BUY"
+                      ? "bg-green-400"
+                      : signal === "SELL"
+                      ? "bg-red-400"
+                      : "bg-yellow-400"
+                  }
+                `}
+              />
+
+            </div>
+
+          </div>
+
+          <p className="text-zinc-500 text-sm">
+            Signal generated from RSI momentum analysis
           </p>
 
         </motion.div>
 
-        {/* RSI Stats */}
-        <div
-          className="
-            grid grid-cols-2
-            gap-3
-          "
-        >
+        {/* Bottom Stats */}
+        <div className="grid grid-cols-2 gap-3">
 
-          {/* RSI */}
+          {/* RSI Value */}
           <motion.div
             whileHover={{
               scale: 1.02,
@@ -334,27 +401,18 @@ export default function SignalPanel() {
               p-4
             "
           >
-            <p
-              className="
-                text-zinc-500
-                text-sm
-                mb-2
-              "
-            >
+
+            <p className="text-zinc-500 text-sm mb-2">
               RSI Value
             </p>
 
-            <h3
-              className="
-                text-2xl
-                font-bold
-              "
-            >
+            <h3 className="text-2xl font-bold">
               {rsi?.toFixed(2)}
             </h3>
+
           </motion.div>
 
-          {/* Status */}
+          {/* Market State */}
           <motion.div
             whileHover={{
               scale: 1.02,
@@ -366,23 +424,16 @@ export default function SignalPanel() {
               p-4
             "
           >
-            <p
-              className="
-                text-zinc-500
-                text-sm
-                mb-2
-              "
-            >
+
+            <p className="text-zinc-500 text-sm mb-2">
               Market State
             </p>
 
             <h3
               className={`
-                text-xl
-                font-bold
+                text-xl font-bold
                 ${
-                  rsiStatus ===
-                  "Oversold"
+                  rsiStatus === "Oversold"
                     ? "text-green-400"
                     : rsiStatus ===
                       "Overbought"
@@ -393,6 +444,7 @@ export default function SignalPanel() {
             >
               {rsiStatus}
             </h3>
+
           </motion.div>
 
         </div>

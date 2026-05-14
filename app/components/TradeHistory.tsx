@@ -8,10 +8,18 @@ export default function TradeHistory() {
 
   useEffect(() => {
     const fetchTrades = async () => {
-      const res = await fetch("/api/trades");
-      const data = await res.json();
-      setTrades(data);
-    };
+  try {
+    const res = await fetch("/api/trade");
+
+    const data: Trade[] =
+      await res.json();
+
+    setTrades(data);
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 
     fetchTrades();
     const interval = setInterval(fetchTrades, 3000);
