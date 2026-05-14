@@ -30,7 +30,7 @@ export default function Home() {
         />
 
       {/* MAIN */}
-      <main className="flex-1 flex flex-col ml-64 min-h-screen">
+      <main className="flex-1 flex flex-col min-h-screen  lg:ml-64 ">
 
         {/* NAVBAR */}
         <Navbar
@@ -40,7 +40,7 @@ export default function Home() {
            />
 
         {/* CONTENT */}
-        <div className="p-4 md:p-6 space-y-6 overflow-y-auto w-full max-w-[1800px] mx-auto">
+        <div className=" p-3 sm:p-4 md:p-6 space-y-6 overflow-y-auto w-full max-w-[1800px] mx-auto">
 
           {/* MARKET */}
           <PriceTicker />
@@ -73,7 +73,7 @@ export default function Home() {
             </div>
 
             {/* RIGHT */}
-            <div className="sticky top-6 h-fit space-y-6">
+            <div className="xl:sticky xl:top-6 h-fit space-y-6">
 
               <Watchlist />
 
