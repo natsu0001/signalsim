@@ -7,18 +7,7 @@ type BinanceTickerResponse = {
   lowPrice: string;
 };
 
-type PriceResponse = {
-  symbol: string;
-  price: number;
-  changePercent: number;
-  volume: number;
-  high: number;
-  low: number;
-};
-export const dynamic = "force-dynamic";
-export async function GET(
-  req: Request
-) {
+export async function GET(req: Request) {
   const { searchParams } =
     new URL(req.url);
 
@@ -27,10 +16,8 @@ export async function GET(
     "BTCUSDT";
 
   try {
-    // ================= FETCH MARKET =================
-
     const response = await fetch(
-      `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`,
+      `https://data-api.binance.vision/api/v3/ticker/24hr?symbol=${symbol}`,
       {
         cache: "no-store",
       }
@@ -39,8 +26,7 @@ export async function GET(
     if (!response.ok) {
       return Response.json(
         {
-          error:
-            "Failed to fetch market price",
+          error: "Binance API failed",
         },
         {
           status: 500,
@@ -48,56 +34,26 @@ export async function GET(
       );
     }
 
-const data =
-  await response.json();
+    const data: BinanceTickerResponse =
+      await response.json();
 
-if (!data.symbol) {
-  return Response.json(
-    {
-      error:
-        "Invalid Binance response",
-    },
-    {
-      status: 500,
-    }
-  );
-}
-
-    // ================= FORMAT =================
-
-    const result: PriceResponse = {
+    return Response.json({
       symbol: data.symbol,
-
-      price: Number(
-        data.lastPrice
-      ),
-
+      price: Number(data.lastPrice),
       changePercent: Number(
         data.priceChangePercent
       ),
-
-      volume: Number(
-        data.volume
-      ),
-
-      high: Number(
-        data.highPrice
-      ),
-
-      low: Number(
-        data.lowPrice
-      ),
-    };
-
-    return Response.json(result);
+      volume: Number(data.volume),
+      high: Number(data.highPrice),
+      low: Number(data.lowPrice),
+    });
 
   } catch (error) {
     console.error(error);
 
     return Response.json(
       {
-        error:
-          "Price fetch failed",
+        error: "Price fetch failed",
       },
       {
         status: 500,
