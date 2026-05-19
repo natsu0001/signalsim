@@ -3,17 +3,17 @@ import {  useState, useEffect } from "react";
 import OpenPositions from "./components/OpenPositions";
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
-import Chart from "./components/Chart";
+
 import PriceTicker from "./components/PriceTicker";
-import Watchlist from "./components/Watchlist";
+
 import SignalPanel from "./components/SignalPanel";
-import TradePanel from "./components/TradePanel";
+
 import Portfolio from "./components/Portfolio";
 import StatsPanel from "./components/StatsPanel";
 import TradeHistory from "./components/TradeHistory";
 
 import { useMarketStore } from "./store/useMarketStore";
-
+import dynamic from "next/dynamic";
 
 
 export default function Home() {
@@ -23,7 +23,25 @@ export default function Home() {
   useState(false);
 
   const [mounted, setMounted] = useState(false);
+const Chart = dynamic(
+  () => import("./components/Chart"),
+  {
+    ssr: false,
+  }
+);
+const TradePanel = dynamic(
+  () => import("./components/TradePanel"),
+  {
+    ssr: false,
+  }
+);
 
+const Watchlist = dynamic(
+  () => import("./components/Watchlist"),
+  {
+    ssr: false,
+  }
+);
   useEffect(() => {
     setMounted(true);
   }, []);
