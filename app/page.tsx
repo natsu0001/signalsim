@@ -1,4 +1,4 @@
-
+"use client";
 import {  useState, useEffect } from "react";
 import OpenPositions from "./components/OpenPositions";
 import Sidebar from "./components/layout/Sidebar";
