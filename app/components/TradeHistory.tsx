@@ -6,26 +6,58 @@ import { useEffect, useState } from "react";
 export default function TradeHistory() {
   const [trades, setTrades] = useState<Trade[]>([]);
 
-  useEffect(() => {
-    const fetchTrades = async () => {
-  try {
-    const res = await fetch("/api/trades");
+useEffect(() => {
+  const fetchTrades = async () => {
+    try {
+      const res = await fetch("/api/trades");
 
-    const data: Trade[] =
-      await res.json();
+      // CHECK RESPONSE
+      if (!res.ok) {
+        console.error(
+          "Failed API:",
+          res.status
+        );
+        return;
+      }
 
-    setTrades(data);
+      // CHECK CONTENT TYPE
+      const contentType =
+        res.headers.get("content-type");
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+      if (
+        !contentType?.includes(
+          "application/json"
+        )
+      ) {
+        console.error(
+          "Invalid JSON response"
+        );
+        return;
+      }
 
-    fetchTrades();
-    const interval = setInterval(fetchTrades, 3000);
+      const data = await res.json();
 
-    return () => clearInterval(interval);
-  }, []);
+      if (Array.isArray(data)) {
+        setTrades(data);
+      }
+
+    } catch (error) {
+      console.error(
+        "Trade fetch error:",
+        error
+      );
+    }
+  };
+
+  fetchTrades();
+
+  const interval = setInterval(
+    fetchTrades,
+    3000
+  );
+
+  return () => clearInterval(interval);
+}, []);
 
  const calculatePnL = (trade: Trade) => {
   if (trade.status !== "CLOSED" || trade.exitPrice == null) {
@@ -139,7 +171,11 @@ return (
             <div className="mt-4 flex items-center justify-between">
 
               <p className="text-xs text-zinc-500">
-                {new Date(trade.createdAt).toLocaleString()}
+                  {trade.createdAt
+                     ? new Date(
+                       trade.createdAt
+                     ).toLocaleString()
+                      : "--"}
               </p>
 
               <p
