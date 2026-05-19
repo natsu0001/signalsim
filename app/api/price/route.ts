@@ -15,7 +15,7 @@ type PriceResponse = {
   high: number;
   low: number;
 };
-
+export const dynamic = "force-dynamic";
 export async function GET(
   req: Request
 ) {
@@ -48,8 +48,20 @@ export async function GET(
       );
     }
 
-    const data: BinanceTickerResponse =
-      await response.json();
+const data =
+  await response.json();
+
+if (!data.symbol) {
+  return Response.json(
+    {
+      error:
+        "Invalid Binance response",
+    },
+    {
+      status: 500,
+    }
+  );
+}
 
     // ================= FORMAT =================
 
