@@ -26,10 +26,22 @@ export default function PriceTicker() {
           `/api/price?symbol=${symbol}`
         );
 
-        const data: MarketData =
-          await res.json();
+       if (!res.ok) {
+  console.error(
+    "Price API failed:",
+    res.status
+  );
+  return;
+}
 
-        setMarket(data);
+const data = await res.json();
+
+if (data.error) {
+  console.error(data.error);
+  return;
+}
+
+setMarket(data);
 
       } catch (err) {
         console.error(err);

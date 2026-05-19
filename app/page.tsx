@@ -1,38 +1,37 @@
 "use client";
-import {  useState, useEffect } from "react";
-import OpenPositions from "./components/OpenPositions";
+
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
 
+import OpenPositions from "./components/OpenPositions";
 import PriceTicker from "./components/PriceTicker";
-
 import SignalPanel from "./components/SignalPanel";
-
 import Portfolio from "./components/Portfolio";
 import StatsPanel from "./components/StatsPanel";
 import TradeHistory from "./components/TradeHistory";
 
-import { useMarketStore } from "./store/useMarketStore";
-import dynamic from "next/dynamic";
+// ================= DYNAMIC IMPORTS =================
 
-
-export default function Home() {
-  const { symbol } = useMarketStore();
-
-  const [sidebarOpen, setSidebarOpen] =
-  useState(false);
-
-  const [mounted, setMounted] = useState(false);
 const Chart = dynamic(
   () => import("./components/Chart"),
   {
     ssr: false,
+    loading: () => (
+      <div className="h-[500px] rounded-2xl bg-zinc-900 animate-pulse" />
+    ),
   }
 );
+
 const TradePanel = dynamic(
   () => import("./components/TradePanel"),
   {
     ssr: false,
+    loading: () => (
+      <div className="h-[600px] rounded-2xl bg-zinc-900 animate-pulse" />
+    ),
   }
 );
 
@@ -40,78 +39,94 @@ const Watchlist = dynamic(
   () => import("./components/Watchlist"),
   {
     ssr: false,
+    loading: () => (
+      <div className="h-[300px] rounded-2xl bg-zinc-900 animate-pulse" />
+    ),
   }
 );
+
+export default function Home() {
+  const [sidebarOpen, setSidebarOpen] =
+    useState(false);
+
+  const [mounted, setMounted] =
+    useState(false);
+
+  // ================= HYDRATION FIX =================
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 2. Return null or a loading spinner until the component has mounted
   if (!mounted) {
-    return <div className="bg-black min-h-screen" />; 
+    return (
+      <div className="min-h-screen bg-black" />
+    );
   }
 
   return (
-    <div className="flex bg-black min-h-screen text-white">
+    <div className="flex min-h-screen bg-black text-white overflow-hidden">
 
       {/* SIDEBAR */}
       <Sidebar
-       open={sidebarOpen}
+        open={sidebarOpen}
         setOpen={setSidebarOpen}
-        />
+      />
 
       {/* MAIN */}
-      <main className="flex-1 flex flex-col min-h-screen  lg:ml-64 ">
+      <main className="flex-1 flex flex-col lg:ml-64 min-h-screen">
 
         {/* NAVBAR */}
         <Navbar
-      
-         sidebarOpen={sidebarOpen}
-         setSidebarOpen={setSidebarOpen}
-           />
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
 
-        {/* CONTENT */}
-        <div className=" p-3 sm:p-4 md:p-6 space-y-6 overflow-y-auto w-full max-w-[1800px] mx-auto">
+        {/* PAGE CONTENT */}
+        <div className="flex-1 overflow-y-auto">
 
-          {/* MARKET */}
-          <PriceTicker />
+          <div className="p-3 sm:p-4 md:p-6 space-y-6 max-w-[1800px] mx-auto">
 
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            {/* PRICE TICKER */}
+            <PriceTicker />
 
-            {/* LEFT */}
-            <div className="xl:col-span-3 space-y-6">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
 
-              {/* CHART */}
-              <Chart />
+              {/* LEFT SECTION */}
+              <div className="xl:col-span-3 space-y-6">
 
-              {/* STATS */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {/* CHART */}
+                <Chart />
 
-                <Portfolio />
+                {/* STATS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-                <StatsPanel />
+                  <Portfolio />
 
-                <SignalPanel />
+                  <StatsPanel />
+
+                  <SignalPanel />
+
+                </div>
+
+                {/* OPEN POSITIONS */}
+                <OpenPositions />
+
+                {/* TRADE HISTORY */}
+                <TradeHistory />
 
               </div>
 
-              {/* OPEN POSITIONS */}
-              <OpenPositions />
+              {/* RIGHT SECTION */}
+              <div className="space-y-6 xl:sticky xl:top-6 h-fit">
 
-              {/* TRADE HISTORY */}
-              <TradeHistory />
+                <Watchlist />
 
-            </div>
+                <TradePanel />
 
-            {/* RIGHT */}
-            <div className="xl:sticky xl:top-6 h-fit space-y-6">
-
-              <Watchlist />
-
-              <TradePanel />
+              </div>
 
             </div>
-
           </div>
         </div>
       </main>
