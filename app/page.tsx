@@ -12,6 +12,7 @@ import SignalPanel from "./components/SignalPanel";
 import Portfolio from "./components/Portfolio";
 import StatsPanel from "./components/StatsPanel";
 import TradeHistory from "./components/TradeHistory";
+import ContentWrapper from "./components/layout/ContentWrapper";
 
 // ================= DYNAMIC IMPORTS =================
 
@@ -65,6 +66,7 @@ export default function Home() {
   }
 
   return (
+    
     <div className="flex min-h-screen bg-black text-white overflow-hidden">
 
       {/* SIDEBAR */}
@@ -131,5 +133,6 @@ export default function Home() {
         </div>
       </main>
     </div>
+  
   );
 }
