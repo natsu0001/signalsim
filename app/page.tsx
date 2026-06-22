@@ -87,10 +87,10 @@ export default function Home() {
         {/* PAGE CONTENT */}
         <div className="flex-1 overflow-y-auto">
 
-          <div className="p-3 sm:p-4 md:p-6 space-y-6 max-w-auto mx-auto">
+          <div className="p-3 sm:p-4 md:p-6 space-y-6 max-w-[2000] mx-auto">
 
             {/* PRICE TICKER */}
-            <PriceTicker />
+           
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
 
@@ -123,6 +123,7 @@ export default function Home() {
               <div className="space-y-6 xl:sticky xl:top-6 h-fit">
 
                 <Watchlist />
+                 <PriceTicker />
 
                 <TradePanel />
 

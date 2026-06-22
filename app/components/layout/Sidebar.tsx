@@ -33,7 +33,7 @@ export default function Sidebar({
           border-r border-zinc-800
           flex-col
           p-6
-          z-40
+          z-30
         "
       >
 
