@@ -127,7 +127,7 @@ setMarket(data);
 
             {/* SYMBOL */}
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">
+              <h2 className="text-2xl font-bold tracking-tight">
                 {market.symbol}
               </h2>
 
@@ -142,7 +142,7 @@ setMarket(data);
 
             <p
               className={`
-                text-4xl font-bold tracking-tight
+                text-3xl font-bold tracking-tight
                 ${
                   isPositive
                     ? "text-green-400"
@@ -171,7 +171,7 @@ setMarket(data);
         </div>
 
         {/* STATS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div className="grid grid-cols-1  gap-4 mt-6">
 
           {/* HIGH */}
           <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
