@@ -87,7 +87,7 @@ export default function Home() {
         {/* PAGE CONTENT */}
         <div className="flex-1 overflow-y-auto">
 
-          <div className="p-3 sm:p-4 md:p-6 space-y-6 max-w-[1800px] mx-auto">
+          <div className="p-3 sm:p-4 md:p-6 space-y-6 max-w-auto mx-auto">
 
             {/* PRICE TICKER */}
             <PriceTicker />
